@@ -1,1 +1,3 @@
-# juristenbieb
+# JuristenBieb
+
+Startproject met Astro.
