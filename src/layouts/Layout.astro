@@ -1,0 +1,41 @@
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JuristenBieb</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body>
+    <header style="margin-bottom: 1.5rem;">
+      <div style="padding: 1rem;">
+        <img 
+          src="/logo.png" 
+          alt="JuristenBieb logo" 
+          width="100" 
+          height="100" 
+          style="border-radius: 8px;" 
+        />
+      </div>
+
+      <nav>
+        <ul>
+          <li><a href="/" rel="noopener noreferrer">Home</a></li>
+          <li><a href="/over" rel="noopener noreferrer">Over</a></li>
+          <li><a href="/publicaties" rel="noopener noreferrer">Publicaties</a></li>
+          <li><a href="/contact" rel="noopener noreferrer">Contact</a></li>
+          <li><a href="/bijdrage-schrijven" rel="noopener noreferrer">Bijdrage schrijven</a></li>
+          <li><a href="/bijdrage-aanmelden" rel="noopener noreferrer">Bijdrage aanmelden</a></li>
+          <li><a href="/vraag-stellen" rel="noopener noreferrer">Vraag stellen</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer>
+      <p>&copy; 2025 JuristenBieb.nl</p>
+    </footer>
+  </body>
+</html>

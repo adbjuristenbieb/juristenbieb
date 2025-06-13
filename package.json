@@ -1,12 +1,15 @@
 {
   "name": "juristenbieb",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
+    "update": "node src/pages/api/update-publicaties.js",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "^4.0.0"
+    "astro": "^4.0.0",
+    "rss-parser": "^3.13.0"
   }
 }

@@ -1,0 +1,272 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout>
+  <h1>Publicaties</h1>
+
+  <section style="margin-bottom: 2rem;">
+    <input id="searchInput" type="text" placeholder="Zoek op titel..." style="padding: 0.5rem; width: 100%; max-width: 30rem; margin-bottom: 1rem;" />
+
+    <details style="margin-bottom: 1rem;">
+      <summary><strong>Type</strong></summary>
+      <div id="filterType"></div>
+    </details>
+
+    <details style="margin-bottom: 1rem;">
+      <summary><strong>Thema</strong></summary>
+      <div id="filterThema"></div>
+    </details>
+
+    <details style="margin-bottom: 1rem;">
+      <summary><strong>Auteur</strong></summary>
+      <div id="filterAuteur"></div>
+    </details>
+
+    <details style="margin-bottom: 1rem;">
+      <summary><strong>Bron</strong></summary>
+      <div id="filterBron"></div>
+    </details>
+
+    <details style="margin-bottom: 1rem;">
+      <summary><strong>Datum</strong></summary>
+      <div id="filterDatum">
+        <label><input type="radio" name="datumFilter" value="all" checked> Alles</label><br />
+        <label><input type="radio" name="datumFilter" value="day"> Vandaag</label><br />
+        <label><input type="radio" name="datumFilter" value="week"> Afgelopen week</label><br />
+        <label><input type="radio" name="datumFilter" value="month"> Afgelopen maand</label><br />
+        <label><input type="radio" name="datumFilter" value="year"> Afgelopen jaar</label>
+      </div>
+    </details>
+
+    <button id="resetBtn" style="margin-top: 1rem;">Reset filters</button>
+  </section>
+
+  <p id="result-count" class="text-sm text-gray-600" style="margin-bottom: 1rem;"></p>
+  <ul id="publicationList" style="list-style: none; padding: 0;"></ul>
+
+<script type="module">
+  document.addEventListener("DOMContentLoaded", () => {
+    function formatDate(dateString) {
+      const parsed = new Date(dateString);
+      return isNaN(parsed) ? dateString : new Intl.DateTimeFormat('nl-NL', {
+        day: '2-digit', month: 'long', year: 'numeric'
+      }).format(parsed);
+    }
+
+    function parseDutchDate(str) {
+      const maanden = {
+        januari: "01", februari: "02", maart: "03", april: "04", mei: "05", juni: "06",
+        juli: "07", augustus: "08", september: "09", oktober: "10", november: "11", december: "12"
+      };
+      const match = str?.match?.(/^(\d{1,2}) (\w+) (\d{4})$/);
+      if (!match) return null;
+      const [_, dag, maandStr, jaar] = match;
+      const maand = maanden[maandStr.toLowerCase()];
+      return maand ? new Date(`${jaar}-${maand}-${dag.padStart(2, '0')}`) : null;
+    }
+
+    function compareDatumStrings(a, b) {
+      const dateA = parseDutchDate(a.datum);
+      const dateB = parseDutchDate(b.datum);
+      if (!dateA || !dateB) return 0;
+      return dateB - dateA;
+    }
+
+    let publicaties = [];
+    let filteredPublicaties = [];
+    let currentPage = 1;
+    const itemsPerPage = 20;
+
+    const listEl = document.getElementById("publicationList");
+    const searchInput = document.getElementById("searchInput");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const unique = (arr) => [...new Set(arr)];
+    const isWithinRange = (pubDate, days) => {
+      const pub = parseDutchDate(pubDate);
+      const now = new Date();
+      return pub ? (now - pub) / (1000 * 60 * 60 * 24) <= days : false;
+    };
+
+    const getCheckedValues = id => Array.from(document.querySelectorAll(`#${id} input:checked`)).map(cb => cb.value);
+
+    const getQueryParams = () => new URLSearchParams(window.location.search);
+    const updateURL = () => {
+      const params = new URLSearchParams();
+      getCheckedValues("filterType").forEach(val => params.append("type", val));
+      getCheckedValues("filterThema").forEach(val => params.append("thema", val));
+      getCheckedValues("filterBron").forEach(val => params.append("bron", val));
+      getCheckedValues("filterAuteur").forEach(val => params.append("auteur", val));
+      const datum = document.querySelector("input[name=datumFilter]:checked")?.value || "all";
+      if (datum !== "all") params.set("datum", datum);
+      const zoekterm = searchInput.value.trim();
+      if (zoekterm) params.set("zoek", zoekterm);
+      if (currentPage > 1) params.set("page", currentPage);
+      history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    };
+
+    const applyURLFilters = () => {
+      const params = getQueryParams();
+      ["type", "thema", "bron", "auteur"].forEach(key => {
+        const values = params.getAll(key);
+        document.querySelectorAll(`#filter${key.charAt(0).toUpperCase() + key.slice(1)} input`).forEach(cb => {
+          cb.checked = values.includes(cb.value);
+        });
+      });
+      const datum = params.get("datum");
+      if (datum) {
+        const radio = document.querySelector(`input[name=datumFilter][value="${datum}"]`);
+        if (radio) radio.checked = true;
+      }
+      const zoekterm = params.get("zoek");
+      if (zoekterm) searchInput.value = zoekterm;
+      const page = parseInt(params.get("page"));
+      if (!isNaN(page) && page >= 1) currentPage = page;
+    };
+
+    function makeCheckboxes(items, id) {
+      const container = document.getElementById(id);
+      container.innerHTML = "";
+      items.forEach(item => {
+        const label = document.createElement("label");
+        label.style.marginRight = "1rem";
+        label.innerHTML = `<input type="checkbox" value="${item}"/> ${item}`;
+        container.appendChild(label);
+      });
+    }
+
+    function renderFilters() {
+      const allTypes = unique(publicaties.map(p => p.type));
+      const allThema = unique(publicaties.flatMap(p => p.thema || []));
+      const allBron = unique(publicaties.map(p => p.bron));
+      const allAuteurs = unique(publicaties.map(p => p.auteur));
+      makeCheckboxes(allTypes, "filterType");
+      makeCheckboxes(allThema, "filterThema");
+      makeCheckboxes(allBron, "filterBron");
+      makeCheckboxes(allAuteurs, "filterAuteur");
+    }
+
+    function applyFilters() {
+      const selectedType = getCheckedValues("filterType");
+      const selectedThema = getCheckedValues("filterThema");
+      const selectedBron = getCheckedValues("filterBron");
+      const selectedAuteur = getCheckedValues("filterAuteur");
+      const zoekterm = searchInput.value.toLowerCase();
+      const selectedDatum = document.querySelector("input[name=datumFilter]:checked")?.value || "all";
+
+      filteredPublicaties = publicaties.filter(pub => {
+        return (
+          (selectedType.length === 0 || selectedType.includes(pub.type)) &&
+          (selectedThema.length === 0 || (pub.thema || []).some(t => selectedThema.includes(t))) &&
+          (selectedBron.length === 0 || selectedBron.includes(pub.bron)) &&
+          (selectedAuteur.length === 0 || selectedAuteur.includes(pub.auteur)) &&
+          pub.titel.toLowerCase().includes(zoekterm) &&
+          (selectedDatum === "all" ||
+            (selectedDatum === "day" && parseDutchDate(pub.datum)?.toDateString() === new Date().toDateString()) ||
+            (selectedDatum === "week" && isWithinRange(pub.datum, 7)) ||
+            (selectedDatum === "month" && isWithinRange(pub.datum, 30)) ||
+            (selectedDatum === "year" && isWithinRange(pub.datum, 365)))
+        );
+      });
+    }
+
+    function renderAantalResultaten() {
+      const countEl = document.getElementById("result-count");
+      countEl.textContent = `${filteredPublicaties.length} resultaten`;
+    }
+
+    function renderList() {
+      listEl.innerHTML = "";
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const pageItems = filteredPublicaties.slice(startIndex, startIndex + itemsPerPage);
+      if (pageItems.length === 0) {
+        listEl.innerHTML = "<p>Geen resultaten gevonden.</p>";
+        return;
+      }
+      listEl.innerHTML = pageItems.map(pub => `
+        <li style="margin-bottom: 1.5rem;">
+          <h2 style="margin: 0 0 0.25rem 0;"><a href="${pub.url}" target="_blank">${pub.titel}</a></h2>
+          <small>${pub.type} · ${formatDate(pub.datum)} · ${pub.bron}</small><br />
+          ${Array.isArray(pub.thema) && pub.thema.length ? `<small>Thema’s: ${pub.thema.join(", ")}</small>` : ""}
+        </li>
+      `).join("");
+    }
+
+    function renderPaginationInfo() {
+      let infoContainer = document.getElementById("pagination-info");
+      if (!infoContainer) {
+        infoContainer = document.createElement("div");
+        infoContainer.id = "pagination-info";
+        infoContainer.style.marginBottom = "1rem";
+        listEl.before(infoContainer);
+      }
+      const totalPages = Math.ceil(filteredPublicaties.length / itemsPerPage);
+      infoContainer.textContent = totalPages > 1 ? `Pagina ${currentPage} van ${totalPages}` : "";
+    }
+
+    function renderPaginationControls() {
+      let controls = document.getElementById("pagination-controls");
+      if (!controls) {
+        controls = document.createElement("div");
+        controls.id = "pagination-controls";
+        controls.style.marginTop = "2rem";
+        listEl.after(controls);
+      }
+      controls.innerHTML = "";
+      const totalPages = Math.ceil(filteredPublicaties.length / itemsPerPage);
+      if (totalPages <= 1) return;
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === currentPage) btn.disabled = true;
+        btn.addEventListener("click", () => {
+          currentPage = i;
+          updateURL();
+          renderAantalResultaten();
+          renderPaginationInfo();
+          renderList();
+          renderPaginationControls();
+        });
+        controls.appendChild(btn);
+      }
+    }
+
+    const refresh = () => {
+      applyFilters();
+      renderAantalResultaten();
+      renderPaginationInfo();
+      renderList();
+      renderPaginationControls();
+      updateURL();
+    };
+
+    resetBtn.addEventListener("click", () => {
+      document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+      document.querySelector("input[name=datumFilter][value=all]").checked = true;
+      searchInput.value = "";
+      currentPage = 1;
+      refresh();
+    });
+
+    document.addEventListener("change", (e) => {
+      if (e.target.matches("input[type=checkbox], input[name=datumFilter]")) {
+        currentPage = 1;
+        refresh();
+      }
+    });
+
+    fetch("/content/publicaties.json")
+      .then(res => res.json())
+      .then(data => {
+        publicaties = data.sort(compareDatumStrings);
+        renderFilters();
+        applyURLFilters();
+        applyFilters();
+        renderAantalResultaten();
+        renderPaginationInfo();
+        renderList();
+        renderPaginationControls();
+      });
+  });
+</script>
+</Layout>

@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <h1>Contact</h1>
+  <p>Heb je vragen of suggesties? Neem gerust contact op via onderstaand formulier.</p>
+
+  <form method="post" netlify>
+    <label>
+      Naam<br />
+      <input type="text" name="naam" required />
+    </label><br /><br />
+
+    <label>
+      E-mailadres<br />
+      <input type="email" name="email" required />
+    </label><br /><br />
+
+    <label>
+      Bericht<br />
+      <textarea name="bericht" rows="5" required></textarea>
+    </label><br /><br />
+
+    <button type="submit">Verzenden</button>
+  </form>
+</Layout>
