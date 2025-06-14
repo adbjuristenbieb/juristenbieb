@@ -87,7 +87,6 @@ body {
   main {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 2rem;
   }
 
   footer {
@@ -331,6 +330,7 @@ body {
 
   .filter-header {
     padding: 1.5rem;
+    padding-top: 1rem;
     border-bottom: 1px solid #e9ecef;
     background: white;
     position: sticky;
