@@ -8,6 +8,7 @@ PAD_PUBLICATIES = BASE / "public" / "content" / "publicaties.json"
 PAD_VNG = BASE / "public" / "content" / "vng_publicaties.json"
 PAD_BO = BASE / "public" / "content" / "burgeroverheid.json"
 PAD_STIBBE = BASE / "public" / "content" / "stibbe.json"
+PAD_LEIDEN = BASE / "public" / "content" / "leiden.json"
 
 def laad_json(path):
     print(f"📄 Probeer te laden: {path.resolve()}")
@@ -28,14 +29,16 @@ def main():
     vng_scrape = laad_json(PAD_VNG)
     burger_overheid = laad_json(PAD_BO)
     stibbe = laad_json(PAD_STIBBE)
+    leiden = laad_json(PAD_LEIDEN)
 
     print("\n📊 Samenvatting geladen data:")
     print(f"📥 VNG: {len(vng_scrape)}")
     print(f"📥 Burger & Overheid: {len(burger_overheid)}")
     print(f"📥 Stibbe: {len(stibbe)}")
+    print(f"📥 Leiden: {len(leiden)}")
 
     # Combineer en ontdubbel op URL
-    alles = vng_scrape + burger_overheid + stibbe
+    alles = vng_scrape + burger_overheid + stibbe + leiden
     uniek = {item.get("url"): item for item in alles if item.get("url")}
     resultaat = list(uniek.values())
 
