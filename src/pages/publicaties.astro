@@ -2,47 +2,80 @@
 import Layout from '../layouts/Layout.astro';
 ---
 <Layout>
-  <h1>Publicaties</h1>
-
-  <section style="margin-bottom: 2rem;">
-    <input id="searchInput" type="text" placeholder="Zoek op titel..." style="padding: 0.5rem; width: 100%; max-width: 30rem; margin-bottom: 1rem;" />
-
-    <details style="margin-bottom: 1rem;">
-      <summary><strong>Type</strong></summary>
-      <div id="filterType"></div>
-    </details>
-
-    <details style="margin-bottom: 1rem;">
-      <summary><strong>Thema</strong></summary>
-      <div id="filterThema"></div>
-    </details>
-
-    <details style="margin-bottom: 1rem;">
-      <summary><strong>Auteur</strong></summary>
-      <div id="filterAuteur"></div>
-    </details>
-
-    <details style="margin-bottom: 1rem;">
-      <summary><strong>Bron</strong></summary>
-      <div id="filterBron"></div>
-    </details>
-
-    <details style="margin-bottom: 1rem;">
-      <summary><strong>Datum</strong></summary>
-      <div id="filterDatum">
-        <label><input type="radio" name="datumFilter" value="all" checked> Alles</label><br />
-        <label><input type="radio" name="datumFilter" value="day"> Vandaag</label><br />
-        <label><input type="radio" name="datumFilter" value="week"> Afgelopen week</label><br />
-        <label><input type="radio" name="datumFilter" value="month"> Afgelopen maand</label><br />
-        <label><input type="radio" name="datumFilter" value="year"> Afgelopen jaar</label>
+  <!-- Fixed Left Filter Panel -->
+  <aside class="filter-panel">
+      <div class="filter-header">
+        <h2>Filter</h2>
       </div>
-    </details>
+      
+      <div class="filter-content">
+        <div class="search-section">
+          <input id="searchInput" type="text" placeholder="Zoek op titel..." class="search-input" />
+        </div>
 
-    <button id="resetBtn" style="margin-top: 1rem;">Reset filters</button>
-  </section>
+        <div class="filter-section">
+          <div class="filter-group">
+            <button class="filter-toggle" data-target="filterType">
+              <span>Type</span>
+              <span class="filter-arrow">▼</span>
+            </button>
+            <div id="filterType" class="filter-options"></div>
+          </div>
 
-  <p id="result-count" class="text-sm text-gray-600" style="margin-bottom: 1rem;"></p>
-  <ul id="publicationList" style="list-style: none; padding: 0;"></ul>
+          <div class="filter-group">
+            <button class="filter-toggle" data-target="filterThema">
+              <span>Thema</span>
+              <span class="filter-arrow">▼</span>
+            </button>
+            <div id="filterThema" class="filter-options"></div>
+          </div>
+
+          <div class="filter-group">
+            <button class="filter-toggle" data-target="filterAuteur">
+              <span>Auteur</span>
+              <span class="filter-arrow">▼</span>
+            </button>
+            <div id="filterAuteur" class="filter-options"></div>
+          </div>
+
+          <div class="filter-group">
+            <button class="filter-toggle" data-target="filterBron">
+              <span>Bron</span>
+              <span class="filter-arrow">▼</span>
+            </button>
+            <div id="filterBron" class="filter-options"></div>
+          </div>
+
+          <div class="filter-group">
+            <button class="filter-toggle" data-target="filterDatum">
+              <span>Datum</span>
+              <span class="filter-arrow">▼</span>
+            </button>
+            <div id="filterDatum" class="filter-options">
+              <label class="filter-radio"><input type="radio" name="datumFilter" value="all" checked> Alles</label>
+              <label class="filter-radio"><input type="radio" name="datumFilter" value="day"> Vandaag</label>
+              <label class="filter-radio"><input type="radio" name="datumFilter" value="week"> Afgelopen week</label>
+              <label class="filter-radio"><input type="radio" name="datumFilter" value="month"> Afgelopen maand</label>
+              <label class="filter-radio"><input type="radio" name="datumFilter" value="year"> Afgelopen jaar</label>
+            </div>
+          </div>
+        </div>
+
+        <button id="resetBtn" class="reset-button">Reset filters</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="publications-main">
+      <div class="publications-header">
+        <h1>Publicaties</h1>
+        <p id="result-count" class="result-count"></p>
+      </div>
+      
+      <div id="pagination-info" class="pagination-info"></div>
+      <div id="publicationList" class="publications-grid"></div>
+      <div id="pagination-controls" class="pagination-controls"></div>
+    </main>
 
 <script type="module">
   document.addEventListener("DOMContentLoaded", () => {
@@ -129,7 +162,7 @@ import Layout from '../layouts/Layout.astro';
       container.innerHTML = "";
       items.forEach(item => {
         const label = document.createElement("label");
-        label.style.marginRight = "1rem";
+        label.className = "filter-checkbox";
         label.innerHTML = `<input type="checkbox" value="${item}"/> ${item}`;
         container.appendChild(label);
       });
@@ -175,20 +208,42 @@ import Layout from '../layouts/Layout.astro';
       countEl.textContent = `${filteredPublicaties.length} resultaten`;
     }
 
+    function getTypeClass(type) {
+      return type.toLowerCase().replace(/\s+/g, '-');
+    }
+
+    function truncateText(text, maxLength = 150) {
+      if (!text || text.length <= maxLength) return text;
+      return text.substring(0, maxLength) + '...';
+    }
+
     function renderList() {
       listEl.innerHTML = "";
       const startIndex = (currentPage - 1) * itemsPerPage;
       const pageItems = filteredPublicaties.slice(startIndex, startIndex + itemsPerPage);
       if (pageItems.length === 0) {
-        listEl.innerHTML = "<p>Geen resultaten gevonden.</p>";
+        listEl.innerHTML = "<p class='no-results'>Geen resultaten gevonden.</p>";
         return;
       }
+      
       listEl.innerHTML = pageItems.map(pub => `
-        <li style="margin-bottom: 1.5rem;">
-          <h2 style="margin: 0 0 0.25rem 0;"><a href="${pub.url}" target="_blank">${pub.titel}</a></h2>
-          <small>${pub.type} · ${formatDate(pub.datum)} · ${pub.bron}</small><br />
-          ${Array.isArray(pub.thema) && pub.thema.length ? `<small>Thema’s: ${pub.thema.join(", ")}</small>` : ""}
-        </li>
+        <div class="publication-card">
+          <div class="publication-type ${getTypeClass(pub.type)}">${pub.type}</div>
+          <h2 class="publication-title">
+            <a href="${pub.url}" target="_blank" rel="noopener noreferrer">${pub.titel}</a>
+          </h2>
+          <div class="publication-meta">
+            ${formatDate(pub.datum)} - ${pub.bron}
+          </div>
+          <div class="publication-excerpt">
+            ${truncateText(pub.samenvatting || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')}
+          </div>
+          ${Array.isArray(pub.thema) && pub.thema.length ? `
+            <div class="publication-themes">
+              ${pub.thema.map(theme => `<span class="theme-tag">${theme}</span>`).join('')}
+            </div>
+          ` : ''}
+        </div>
       `).join("");
     }
 
@@ -209,13 +264,64 @@ import Layout from '../layouts/Layout.astro';
       if (!controls) {
         controls = document.createElement("div");
         controls.id = "pagination-controls";
-        controls.style.marginTop = "2rem";
+        controls.className = "pagination-controls";
         listEl.after(controls);
       }
       controls.innerHTML = "";
       const totalPages = Math.ceil(filteredPublicaties.length / itemsPerPage);
       if (totalPages <= 1) return;
-      for (let i = 1; i <= totalPages; i++) {
+
+      // Previous button
+      const prevBtn = document.createElement("button");
+      prevBtn.innerHTML = "← Vorige";
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          updateURL();
+          renderAantalResultaten();
+          renderPaginationInfo();
+          renderList();
+          renderPaginationControls();
+        }
+      });
+      controls.appendChild(prevBtn);
+
+      // Page numbers (show max 5 pages around current page)
+      const maxVisible = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+      
+      // Adjust start if we're near the end
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+
+      // First page + ellipsis if needed
+      if (startPage > 1) {
+        const firstBtn = document.createElement("button");
+        firstBtn.textContent = "1";
+        firstBtn.addEventListener("click", () => {
+          currentPage = 1;
+          updateURL();
+          renderAantalResultaten();
+          renderPaginationInfo();
+          renderList();
+          renderPaginationControls();
+        });
+        controls.appendChild(firstBtn);
+
+        if (startPage > 2) {
+          const ellipsis = document.createElement("span");
+          ellipsis.textContent = "...";
+          ellipsis.style.padding = "0.5rem";
+          ellipsis.style.color = "#6c757d";
+          controls.appendChild(ellipsis);
+        }
+      }
+
+      // Visible page numbers
+      for (let i = startPage; i <= endPage; i++) {
         const btn = document.createElement("button");
         btn.textContent = i;
         if (i === currentPage) btn.disabled = true;
@@ -229,6 +335,45 @@ import Layout from '../layouts/Layout.astro';
         });
         controls.appendChild(btn);
       }
+
+      // Ellipsis + last page if needed
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          const ellipsis = document.createElement("span");
+          ellipsis.textContent = "...";
+          ellipsis.style.padding = "0.5rem";
+          ellipsis.style.color = "#6c757d";
+          controls.appendChild(ellipsis);
+        }
+
+        const lastBtn = document.createElement("button");
+        lastBtn.textContent = totalPages;
+        lastBtn.addEventListener("click", () => {
+          currentPage = totalPages;
+          updateURL();
+          renderAantalResultaten();
+          renderPaginationInfo();
+          renderList();
+          renderPaginationControls();
+        });
+        controls.appendChild(lastBtn);
+      }
+
+      // Next button
+      const nextBtn = document.createElement("button");
+      nextBtn.innerHTML = "Volgende →";
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.addEventListener("click", () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          updateURL();
+          renderAantalResultaten();
+          renderPaginationInfo();
+          renderList();
+          renderPaginationControls();
+        }
+      });
+      controls.appendChild(nextBtn);
     }
 
     const refresh = () => {
@@ -253,6 +398,30 @@ import Layout from '../layouts/Layout.astro';
         currentPage = 1;
         refresh();
       }
+    });
+
+    // Filter toggle functionality
+    document.addEventListener("click", (e) => {
+      if (e.target.matches(".filter-toggle")) {
+        const filterGroup = e.target.closest(".filter-group");
+        const isActive = filterGroup.classList.contains("active");
+        
+        // Close all other filter groups
+        document.querySelectorAll(".filter-group").forEach(group => {
+          group.classList.remove("active");
+        });
+        
+        // Toggle current group
+        if (!isActive) {
+          filterGroup.classList.add("active");
+        }
+      }
+    });
+
+    // Search input event listener
+    searchInput.addEventListener("input", () => {
+      currentPage = 1;
+      refresh();
     });
 
     fetch("/content/publicaties.json")
