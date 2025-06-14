@@ -453,7 +453,7 @@ body {
   .reset-button {
     width: 100%;
     padding: 0.75rem;
-    background: #E67E22;
+    background: #712b00;
     color: white;
     border: none;
     border-radius: 8px;
@@ -463,7 +463,7 @@ body {
   }
 
   .reset-button:hover {
-    background: #d35400;
+    background: #5a2200;
   }
 
   main.publications-main {
@@ -542,7 +542,7 @@ body {
   }
 
   .publication-type.blog {
-    background: #E67E22;
+    background: #712b00;
     color: white;
   }
 
