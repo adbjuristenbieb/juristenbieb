@@ -466,12 +466,13 @@ body {
     background: #5a2200;
   }
 
-  main.publications-main {
-    margin-left: 280px;
-    max-width: none;
-    width: calc(100% - 280px);
+  publications-main {
+    margin-left: 280px !important;
+    max-width: 800px !important;
+    width: auto !important;
     min-height: calc(100vh - 200px);
-    padding: 1.5rem;
+    padding: 2rem;
+    margin-right: auto !important;
   }
 
   .publications-header {
@@ -664,9 +665,11 @@ body {
       width: 220px;
     }
     
-    main.publications-main {
-      margin-left: 220px;
-      width: calc(100% - 220px);
+    publications-main {
+      margin-left: 220px !important;
+      max-width: 800px !important;
+      width: auto !important;
+      margin-right: auto !important;
     }
     
     .publications-grid {
@@ -684,7 +687,7 @@ body {
       border-bottom: 1px solid #e9ecef;
     }
     
-    main.publications-main {
+    publications-main {
       margin-left: 0;
       padding: 1rem;
       max-width: none;
