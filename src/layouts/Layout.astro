@@ -6,29 +6,71 @@
     <link rel="stylesheet" href="/src/styles/global.css" />
   </head>
   <body>
-    <header style="margin-bottom: 1.5rem;">
-      <div style="padding: 1rem;">
-        <img 
-          src="/logo.png" 
-          alt="JuristenBieb logo" 
-          width="100" 
-          height="100" 
-          style="border-radius: 8px;" 
-        />
-      </div>
+    <header class="site-header">
+      <div class="header-content">
+        <div class="logo-container">
+          <img 
+            src="/src/assets/images/logo.png" 
+            alt="JuristenBieb logo" 
+            width="80" 
+            height="80" 
+            class="logo"
+          />
+          <h1 class="site-title">
+            <span class="title-line">Juristen</span>
+            <span class="title-line">Bieb</span>
+          </h1>
+        </div>
 
-      <nav>
-        <ul>
-          <li><a href="/" rel="noopener noreferrer">Home</a></li>
-          <li><a href="/over" rel="noopener noreferrer">Over</a></li>
-          <li><a href="/publicaties" rel="noopener noreferrer">Publicaties</a></li>
-          <li><a href="/contact" rel="noopener noreferrer">Contact</a></li>
-          <li><a href="/bijdrage-schrijven" rel="noopener noreferrer">Bijdrage schrijven</a></li>
-          <li><a href="/bijdrage-aanmelden" rel="noopener noreferrer">Bijdrage aanmelden</a></li>
-          <li><a href="/vraag-stellen" rel="noopener noreferrer">Vraag stellen</a></li>
-        </ul>
-      </nav>
+        <nav class="main-nav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/" class="nav-link">Home</a>
+            </li>
+            <li class="nav-item">
+              <a href="/publicaties" class="nav-link">Publicaties</a>
+            </li>
+            <li class="nav-item">
+              <a href="/over" class="nav-link">Over</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link dropdown-toggle">
+                Bijdrage
+                <span class="dropdown-arrow">▼</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="/bijdrage-schrijven" class="dropdown-link">Schrijven</a></li>
+                <li><a href="/bijdrage-aanmelden" class="dropdown-link">Aanmelden</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a href="/contact" class="nav-link">Contact</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </header>
+
+    <script>
+      // Dropdown functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const dropdown = document.querySelector('.dropdown');
+        const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+        const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+
+        dropdownToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          dropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+          }
+        });
+      });
+    </script>
 
     <main>
       <slot />

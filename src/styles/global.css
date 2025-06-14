@@ -1,35 +1,294 @@
+/* Lato Font Face Declarations */
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/src/assets/font/Lato-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* Global styles with Lato font */
+* {
+  font-family: 'Lato', system-ui, sans-serif;
+}
+
 body {
-    font-family: system-ui, sans-serif;
+    font-family: 'Lato', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    color: #2C3E50;
+    background-color: #fff;
+  }
+
+  main {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;
-    line-height: 1.6;
-    color: #222;
-    background-color: #fff;
+  }
+
+  footer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+    border-top: 1px solid #eee;
+    margin-top: 3rem;
   }
   
-  header img {
-    display: block;
-    margin-bottom: 1rem;
+  /* Header and Navigation Styles */
+  .site-header {
+    background: linear-gradient(135deg, #4A9B8E 0%, #3A8B7E 100%);
+    color: white;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(74, 155, 142, 0.2);
   }
-  
-  nav ul {
-    list-style: none;
-    padding: 0;
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
-    margin-bottom: 2rem;
   }
-  
-  nav a {
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .logo {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    filter: hue-rotate(180deg) saturate(1.2) brightness(0.9) contrast(1.1);
+  }
+
+  .logo:hover {
+    transform: scale(1.05);
+    filter: hue-rotate(180deg) saturate(1.3) brightness(1.0) contrast(1.2);
+  }
+
+  .site-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .title-line {
+    display: block;
+  }
+
+  .main-nav {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
     text-decoration: none;
-    color: #0059b3;
-    font-weight: bold;
+    color: white;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    white-space: nowrap;
   }
-  
-  nav a:hover {
-    text-decoration: underline;
+
+  .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
+  /* Dropdown Styles */
+  .dropdown {
+    position: relative;
+  }
+
+  .dropdown-toggle {
+    cursor: pointer;
+  }
+
+  .dropdown-arrow {
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+  }
+
+  .dropdown.active .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem 0;
+    min-width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    list-style: none;
+    margin: 0;
+  }
+
+  .dropdown.active .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .dropdown-link {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .dropdown-link:hover {
+    background-color: #f8f9fa;
+    color: #4A9B8E;
+    padding-left: 1.5rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .main-nav {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .nav-list {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .site-title {
+      font-size: 1.5rem;
+    }
+
+    .dropdown-menu {
+      position: static;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+
+    .dropdown-link {
+      color: white;
+    }
+
+    .dropdown-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding-left: 1.25rem;
+    }
   }
   
   section {
