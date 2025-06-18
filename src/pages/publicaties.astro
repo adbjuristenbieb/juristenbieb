@@ -170,8 +170,19 @@ import Layout from '../layouts/Layout.astro';
 
     async function renderFilters() {
       const allTypes = unique(publicaties.map(p => p.type));
-      const allThema = unique(publicaties.flatMap(p => p.thema || []));
       const allBron = unique(publicaties.map(p => p.bron));
+      
+      // Load predefined themes from JSON file
+      let allThema = [];
+      try {
+        const themesResponse = await fetch("/content/themes.json");
+        const themesData = await themesResponse.json();
+        allThema = themesData.themes;
+      } catch (error) {
+        console.error("Error loading themes:", error);
+        // Fallback to dynamic themes if JSON fails to load
+        allThema = unique(publicaties.flatMap(p => p.thema || []));
+      }
       
       // Load predefined authors from JSON file
       let allAuteurs = [];
@@ -200,9 +211,19 @@ import Layout from '../layouts/Layout.astro';
       const selectedDatum = document.querySelector("input[name=datumFilter]:checked")?.value || "all";
 
       filteredPublicaties = publicaties.filter(pub => {
+        // Handle thema field - it can be a string, array, or empty
+        let pubThemas = [];
+        if (pub.thema) {
+          if (Array.isArray(pub.thema)) {
+            pubThemas = pub.thema;
+          } else if (typeof pub.thema === 'string' && pub.thema.trim() !== '') {
+            pubThemas = [pub.thema];
+          }
+        }
+
         return (
           (selectedType.length === 0 || selectedType.includes(pub.type)) &&
-          (selectedThema.length === 0 || (pub.thema || []).some(t => selectedThema.includes(t))) &&
+          (selectedThema.length === 0 || pubThemas.some(t => selectedThema.includes(t))) &&
           (selectedBron.length === 0 || selectedBron.includes(pub.bron)) &&
           (selectedAuteur.length === 0 || selectedAuteur.some(author => pub.auteur && pub.auteur.includes(author))) &&
           pub.titel.toLowerCase().includes(zoekterm) &&
