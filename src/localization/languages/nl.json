@@ -1,0 +1,17 @@
+{
+  "filters": {
+    "date": {
+      "label": "Datum",
+      "all": "Alles",
+      "today": "Vandaag",
+      "week": "Afgelopen week",
+      "month": "Afgelopen maand",
+      "year": "Afgelopen jaar",
+      "custom": "Aangepast bereik",
+      "from": "Van",
+      "to": "Tot",
+      "apply": "Toepassen",
+      "clear": "Wissen"
+    }
+  }
+}

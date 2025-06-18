@@ -57,6 +57,21 @@ import Layout from '../layouts/Layout.astro';
               <label class="filter-radio"><input type="radio" name="datumFilter" value="week"> Afgelopen week</label>
               <label class="filter-radio"><input type="radio" name="datumFilter" value="month"> Afgelopen maand</label>
               <label class="filter-radio"><input type="radio" name="datumFilter" value="year"> Afgelopen jaar</label>
+              <label class="filter-radio"><input type="radio" name="datumFilter" value="custom"> Aangepast bereik</label>
+              <div id="customDateRange" class="custom-date-range" style="display: none;">
+                <div class="date-input-group">
+                  <label for="dateFrom">Van:</label>
+                  <input type="date" id="dateFrom" class="date-input">
+                </div>
+                <div class="date-input-group">
+                  <label for="dateTo">Tot:</label>
+                  <input type="date" id="dateTo" class="date-input">
+                </div>
+                <div class="date-actions">
+                  <button type="button" id="applyDateRange" class="apply-date-btn">Toepassen</button>
+                  <button type="button" id="clearDateRange" class="clear-date-btn">Wissen</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -131,7 +146,15 @@ import Layout from '../layouts/Layout.astro';
       getCheckedValues("filterBron").forEach(val => params.append("bron", val));
       getCheckedValues("filterAuteur").forEach(val => params.append("auteur", val));
       const datum = document.querySelector("input[name=datumFilter]:checked")?.value || "all";
-      if (datum !== "all") params.set("datum", datum);
+      if (datum !== "all") {
+        params.set("datum", datum);
+        if (datum === "custom") {
+          const fromDate = document.getElementById("dateFrom").value;
+          const toDate = document.getElementById("dateTo").value;
+          if (fromDate) params.set("dateFrom", fromDate);
+          if (toDate) params.set("dateTo", toDate);
+        }
+      }
       const zoekterm = searchInput.value.trim();
       if (zoekterm) params.set("zoek", zoekterm);
       if (currentPage > 1) params.set("page", currentPage);
@@ -149,7 +172,16 @@ import Layout from '../layouts/Layout.astro';
       const datum = params.get("datum");
       if (datum) {
         const radio = document.querySelector(`input[name=datumFilter][value="${datum}"]`);
-        if (radio) radio.checked = true;
+        if (radio) {
+          radio.checked = true;
+          if (datum === "custom") {
+            document.getElementById("customDateRange").style.display = "block";
+            const fromDate = params.get("dateFrom");
+            const toDate = params.get("dateTo");
+            if (fromDate) document.getElementById("dateFrom").value = fromDate;
+            if (toDate) document.getElementById("dateTo").value = toDate;
+          }
+        }
       }
       const zoekterm = params.get("zoek");
       if (zoekterm) searchInput.value = zoekterm;
@@ -202,6 +234,23 @@ import Layout from '../layouts/Layout.astro';
       makeCheckboxes(allAuteurs, "filterAuteur");
     }
 
+    function isWithinCustomRange(pubDate, fromDate, toDate) {
+      const pub = parseDutchDate(pubDate);
+      if (!pub) return false;
+      
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+      
+      if (from && to) {
+        return pub >= from && pub <= to;
+      } else if (from) {
+        return pub >= from;
+      } else if (to) {
+        return pub <= to;
+      }
+      return true;
+    }
+
     function applyFilters() {
       const selectedType = getCheckedValues("filterType");
       const selectedThema = getCheckedValues("filterThema");
@@ -221,17 +270,28 @@ import Layout from '../layouts/Layout.astro';
           }
         }
 
+        // Date filtering logic
+        let dateMatches = true;
+        if (selectedDatum === "custom") {
+          const fromDate = document.getElementById("dateFrom").value;
+          const toDate = document.getElementById("dateTo").value;
+          dateMatches = isWithinCustomRange(pub.datum, fromDate, toDate);
+        } else if (selectedDatum !== "all") {
+          dateMatches = (
+            (selectedDatum === "day" && parseDutchDate(pub.datum)?.toDateString() === new Date().toDateString()) ||
+            (selectedDatum === "week" && isWithinRange(pub.datum, 7)) ||
+            (selectedDatum === "month" && isWithinRange(pub.datum, 30)) ||
+            (selectedDatum === "year" && isWithinRange(pub.datum, 365))
+          );
+        }
+
         return (
           (selectedType.length === 0 || selectedType.includes(pub.type)) &&
           (selectedThema.length === 0 || pubThemas.some(t => selectedThema.includes(t))) &&
           (selectedBron.length === 0 || selectedBron.includes(pub.bron)) &&
           (selectedAuteur.length === 0 || selectedAuteur.some(author => pub.auteur && pub.auteur.includes(author))) &&
           pub.titel.toLowerCase().includes(zoekterm) &&
-          (selectedDatum === "all" ||
-            (selectedDatum === "day" && parseDutchDate(pub.datum)?.toDateString() === new Date().toDateString()) ||
-            (selectedDatum === "week" && isWithinRange(pub.datum, 7)) ||
-            (selectedDatum === "month" && isWithinRange(pub.datum, 30)) ||
-            (selectedDatum === "year" && isWithinRange(pub.datum, 365)))
+          dateMatches
         );
       });
     }
@@ -421,16 +481,56 @@ import Layout from '../layouts/Layout.astro';
     resetBtn.addEventListener("click", () => {
       document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
       document.querySelector("input[name=datumFilter][value=all]").checked = true;
+      document.getElementById("customDateRange").style.display = "none";
+      document.getElementById("dateFrom").value = "";
+      document.getElementById("dateTo").value = "";
       searchInput.value = "";
       currentPage = 1;
       refresh();
     });
 
+    // Custom date range functionality
     document.addEventListener("change", (e) => {
-      if (e.target.matches("input[type=checkbox], input[name=datumFilter]")) {
+      if (e.target.matches("input[name=datumFilter]")) {
+        const customDateRange = document.getElementById("customDateRange");
+        if (e.target.value === "custom") {
+          customDateRange.style.display = "block";
+        } else {
+          customDateRange.style.display = "none";
+          currentPage = 1;
+          refresh();
+        }
+      } else if (e.target.matches("input[type=checkbox]")) {
         currentPage = 1;
         refresh();
       }
+    });
+
+    // Apply custom date range
+    document.getElementById("applyDateRange").addEventListener("click", () => {
+      const fromDate = document.getElementById("dateFrom").value;
+      const toDate = document.getElementById("dateTo").value;
+      
+      if (!fromDate && !toDate) {
+        alert("Selecteer ten minste één datum om te filteren.");
+        return;
+      }
+      
+      if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+        alert("De 'Van' datum moet eerder zijn dan de 'Tot' datum.");
+        return;
+      }
+      
+      currentPage = 1;
+      refresh();
+    });
+
+    // Clear custom date range
+    document.getElementById("clearDateRange").addEventListener("click", () => {
+      document.getElementById("dateFrom").value = "";
+      document.getElementById("dateTo").value = "";
+      currentPage = 1;
+      refresh();
     });
 
     // Filter toggle functionality

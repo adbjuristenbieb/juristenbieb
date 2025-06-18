@@ -450,6 +450,87 @@ body {
     color: #4A9B8E;
   }
 
+  /* Custom Date Range Styles */
+  .custom-date-range {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+  }
+
+  .date-input-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .date-input-group:last-of-type {
+    margin-bottom: 1rem;
+  }
+
+  .date-input-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #2C3E50;
+    font-size: 0.8rem;
+  }
+
+  .date-input {
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    transition: border-color 0.3s ease;
+    font-family: 'Lato', system-ui, sans-serif;
+    box-sizing: border-box;
+  }
+
+  .date-input:focus {
+    outline: none;
+    border-color: #4A9B8E;
+  }
+
+  .date-actions {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .apply-date-btn,
+  .clear-date-btn {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    font-family: 'Lato', system-ui, sans-serif;
+    text-align: center;
+  }
+
+  .apply-date-btn {
+    background: #4A9B8E;
+    color: white;
+  }
+
+  .apply-date-btn:hover {
+    background: #3A8B7E;
+    transform: translateY(-1px);
+  }
+
+  .clear-date-btn {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #e9ecef;
+  }
+
+  .clear-date-btn:hover {
+    background: #e9ecef;
+    color: #495057;
+  }
+
   .reset-button {
     width: 100%;
     padding: 0.75rem;
