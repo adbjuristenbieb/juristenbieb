@@ -628,6 +628,12 @@ body {
     color: white;
   }
 
+  .publication-type.handreiking {
+    background: transparent;
+    border: 2px solid #712b00;
+    color: #712b00;
+  }
+
   .publication-type.artikel {
     background: #3498db;
     color: white;

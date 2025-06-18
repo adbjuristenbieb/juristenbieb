@@ -201,7 +201,7 @@ import Layout from '../layouts/Layout.astro';
     }
 
     async function renderFilters() {
-      const allTypes = unique(publicaties.map(p => p.type));
+      const allTypes = unique(publicaties.map(p => p.type).filter(type => type && type.trim() !== ''));
       const allBron = unique(publicaties.map(p => p.bron));
       
       // Load predefined themes from JSON file
