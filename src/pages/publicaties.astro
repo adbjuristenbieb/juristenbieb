@@ -285,11 +285,38 @@ import Layout from '../layouts/Layout.astro';
           );
         }
 
+        // Helper function to normalize author names for comparison
+        const normalizeAuthorName = (name) => {
+          if (!name) return '';
+          // Convert "Last, First" to "First Last" and vice versa
+          const commaMatch = name.match(/^(.+),\s*(.+)$/);
+          if (commaMatch) {
+            return `${commaMatch[2].trim()} ${commaMatch[1].trim()}`;
+          }
+          return name;
+        };
+
+        // Check if publication author matches any selected author (handling both name formats)
+        const authorMatches = selectedAuteur.length === 0 || selectedAuteur.some(selectedAuthor => {
+          if (!pub.auteur) return false;
+          
+          // Direct match
+          if (pub.auteur.includes(selectedAuthor)) return true;
+          
+          // Normalized name match (handle "Last, First" vs "First Last" formats)
+          const normalizedSelected = normalizeAuthorName(selectedAuthor);
+          const normalizedPub = normalizeAuthorName(pub.auteur);
+          
+          return pub.auteur.includes(normalizedSelected) || 
+                 normalizedPub.includes(selectedAuthor) ||
+                 normalizedPub.includes(normalizedSelected);
+        });
+
         return (
           (selectedType.length === 0 || selectedType.includes(pub.type)) &&
           (selectedThema.length === 0 || pubThemas.some(t => selectedThema.includes(t))) &&
           (selectedBron.length === 0 || selectedBron.includes(pub.bron)) &&
-          (selectedAuteur.length === 0 || selectedAuteur.some(author => pub.auteur && pub.auteur.includes(author))) &&
+          authorMatches &&
           pub.titel.toLowerCase().includes(zoekterm) &&
           dateMatches
         );
