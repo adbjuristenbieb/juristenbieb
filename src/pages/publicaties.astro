@@ -264,9 +264,9 @@ import Layout from '../layouts/Layout.astro';
         let pubThemas = [];
         if (pub.thema) {
           if (Array.isArray(pub.thema)) {
-            pubThemas = pub.thema;
+            pubThemas = pub.thema.filter(t => t && t.trim() !== '');
           } else if (typeof pub.thema === 'string' && pub.thema.trim() !== '') {
-            pubThemas = [pub.thema];
+            pubThemas = [pub.thema.trim()];
           }
         }
 
@@ -312,9 +312,17 @@ import Layout from '../layouts/Layout.astro';
                  normalizedPub.includes(normalizedSelected);
         });
 
+        // Theme filtering - if no themes selected, show all; if themes selected, publication must have at least one matching theme
+        const themaMatches = selectedThema.length === 0 || 
+          (pubThemas.length > 0 && pubThemas.some(pubThema => 
+            selectedThema.some(selectedThema => 
+              pubThema.toLowerCase().trim() === selectedThema.toLowerCase().trim()
+            )
+          ));
+
         return (
           (selectedType.length === 0 || selectedType.includes(pub.type)) &&
-          (selectedThema.length === 0 || pubThemas.some(t => selectedThema.includes(t))) &&
+          themaMatches &&
           (selectedBron.length === 0 || selectedBron.includes(pub.bron)) &&
           authorMatches &&
           pub.titel.toLowerCase().includes(zoekterm) &&
@@ -358,9 +366,12 @@ import Layout from '../layouts/Layout.astro';
           <div class="publication-excerpt">
             ${truncateText(pub.samenvatting || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')}
           </div>
-          ${Array.isArray(pub.thema) && pub.thema.length ? `
+          ${pub.thema && pub.thema.trim() !== '' ? `
             <div class="publication-themes">
-              ${pub.thema.map(theme => `<span class="theme-tag">${theme}</span>`).join('')}
+              ${Array.isArray(pub.thema) 
+                ? pub.thema.filter(t => t && t.trim() !== '').map(theme => `<span class="theme-tag">${theme}</span>`).join('')
+                : `<span class="theme-tag">${pub.thema}</span>`
+              }
             </div>
           ` : ''}
         </div>
