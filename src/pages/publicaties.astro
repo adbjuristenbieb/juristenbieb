@@ -168,11 +168,23 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    function renderFilters() {
+    async function renderFilters() {
       const allTypes = unique(publicaties.map(p => p.type));
       const allThema = unique(publicaties.flatMap(p => p.thema || []));
       const allBron = unique(publicaties.map(p => p.bron));
-      const allAuteurs = unique(publicaties.map(p => p.auteur));
+      
+      // Load predefined authors from JSON file
+      let allAuteurs = [];
+      try {
+        const auteursResponse = await fetch("/content/auteurs.json");
+        const auteursData = await auteursResponse.json();
+        allAuteurs = auteursData.auteurs;
+      } catch (error) {
+        console.error("Error loading authors:", error);
+        // Fallback to dynamic authors if JSON fails to load
+        allAuteurs = unique(publicaties.map(p => p.auteur));
+      }
+      
       makeCheckboxes(allTypes, "filterType");
       makeCheckboxes(allThema, "filterThema");
       makeCheckboxes(allBron, "filterBron");
@@ -192,7 +204,7 @@ import Layout from '../layouts/Layout.astro';
           (selectedType.length === 0 || selectedType.includes(pub.type)) &&
           (selectedThema.length === 0 || (pub.thema || []).some(t => selectedThema.includes(t))) &&
           (selectedBron.length === 0 || selectedBron.includes(pub.bron)) &&
-          (selectedAuteur.length === 0 || selectedAuteur.includes(pub.auteur)) &&
+          (selectedAuteur.length === 0 || selectedAuteur.some(author => pub.auteur && pub.auteur.includes(author))) &&
           pub.titel.toLowerCase().includes(zoekterm) &&
           (selectedDatum === "all" ||
             (selectedDatum === "day" && parseDutchDate(pub.datum)?.toDateString() === new Date().toDateString()) ||
@@ -426,9 +438,9 @@ import Layout from '../layouts/Layout.astro';
 
     fetch("/content/publicaties.json")
       .then(res => res.json())
-      .then(data => {
+      .then(async (data) => {
         publicaties = data.sort(compareDatumStrings);
-        renderFilters();
+        await renderFilters();
         applyURLFilters();
         applyFilters();
         renderAantalResultaten();
