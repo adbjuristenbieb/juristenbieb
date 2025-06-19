@@ -1,1 +1,10 @@
 node_modules/
+
+# OpenAI API Configuration (contains API key)
+src/pages/api/scrapers/config.py
+
+# Analysis results and temporary files
+src/pages/api/scrapers/*_result.json
+src/pages/api/scrapers/*_backup.json
+src/pages/api/scrapers/*_progress_*.json
+src/pages/api/scrapers/venv/

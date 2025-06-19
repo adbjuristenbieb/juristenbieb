@@ -1,0 +1,12 @@
+{
+  "types": [
+    "Blog",
+    "Handreiking",
+    "Artikel",
+    "Hoofdstuk uit boek",
+    "Nieuwsbericht",
+    "Rapport",
+    "Overig"
+  ]
+}
+
